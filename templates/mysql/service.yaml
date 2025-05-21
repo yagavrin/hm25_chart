@@ -1,0 +1,17 @@
+{{- if .Values.mysql.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "flask-mysql-app.mysql.fullname" . }}
+  labels:
+    app: {{ include "flask-mysql-app.fullname" . }}
+    component: mysql
+spec:
+  ports:
+    - port: 3306
+      name: mysql
+  clusterIP: None
+  selector:
+    app: {{ include "flask-mysql-app.fullname" . }}
+    component: mysql
+{{- end }}

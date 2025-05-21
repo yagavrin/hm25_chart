@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "flask-mysql-app.flaskApp.fullname" . }}
+  labels:
+    app: {{ include "flask-mysql-app.fullname" . }}
+    component: flask-app
+spec:
+  type: {{ .Values.flaskApp.service.type }}
+  ports:
+    - port: {{ .Values.flaskApp.service.port }}
+      targetPort: {{ .Values.flaskApp.service.port }}
+      protocol: TCP
+  selector:
+    app: {{ include "flask-mysql-app.fullname" . }}
+    component: flask-app

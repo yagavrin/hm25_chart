@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "flask-mysql-app.flaskApp.fullname" . }}
+  labels:
+    app: {{ include "flask-mysql-app.fullname" . }}
+    component: flask-app
+spec:
+  replicas: {{ .Values.flaskApp.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "flask-mysql-app.fullname" . }}
+      component: flask-app
+  template:
+    metadata:
+      labels:
+        app: {{ include "flask-mysql-app.fullname" . }}
+        component: flask-app
+    spec:
+      containers:
+        - name: flask-app
+          image: "{{ .Values.flaskApp.image.repository }}:{{ .Values.flaskApp.image.tag }}"
+          imagePullPolicy: {{ .Values.flaskApp.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.flaskApp.service.port }}
+          env:
+            - name: FLASK_ENV
+              value: {{ .Values.flaskApp.env.FLASK_ENV | quote }}
+            - name: PORT
+              value: {{ .Values.flaskApp.env.PORT | quote }}
+            - name: MYSQL_HOST
+              value: {{ .Values.flaskApp.env.MYSQL_HOST | quote }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mysql.database | quote }}
+            - name: MYSQL_USER
+              value: {{ .Values.mysql.username | quote }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flask-mysql-app.mysql.fullname" . }}
+                  key: mysql-password
+          resources:
+            {{- toYaml .Values.flaskApp.resources | nindent 12 }}
